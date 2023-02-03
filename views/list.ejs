@@ -21,10 +21,13 @@
       </div> -->
       <!-- <% } %> -->
       
-
+     <!-- hame yeh jo yah pe value tag button pe likha h uska yahi matalb h ki
+     jo varriable list main jo bhi ham put karegay woh pass ho jaega
+      -->
       <form class="item" action="/" method="post">
         <input type="text" name="newItem" placeholder="New Item" autocomplete="off">
-        <button type="submit" name="list">+</button>
+        <button type="submit" name="list" value="<%= listTitle %>">+</button>
+        
       </form>
   </div>
 

@@ -1,4 +1,4 @@
-//jshint esversion:6
+
 
 const express = require("express");
 const mongoose = require("mongoose");
@@ -35,17 +35,11 @@ const item3 = new  Item ({
 });
 
 const defaultItems =  [item1,item2,item3];
-// Item.insertMany(defaultItems,function(err){
-//   if(err)
-//   {
-//     console.log(err);
-//   }else {
-//     console.log("Successfully saved all tht items in DB");
-//   }
-
-// });
 
 
+
+// IT WILL BE THE DEFAULT LIST IN WHICH ITEMS
+// WILL BE ADD
 
 app.get("/", function(req, res) {
 
@@ -76,15 +70,27 @@ else{
 app.post("/", function(req, res){
 
   const itemName = req.body.newItem;
-
+  // listname to get the extra route aur exta tido list page
+ const listName=req.body.list; 
  //ADD ITEM IN THE TODO LIST DATABASE
   
  const item =new Item({
    name:itemName
  });
+if(listName=="Today")
+{
  item.save();
-
  res.redirect("/");
+}
+else 
+{
+  List.findOne({name:listName},function(err,foundList)
+  {
+   foundList.items.push(item);
+   foundList.save();
+   res.redirect("/"+listName);
+  })
+}
 
 });
 
@@ -106,9 +112,46 @@ app.post("/delete",function(req,res){
   
 });
 
+// SCHEMA FOR NEW  LIST ITME JO KI HAM LIST MAIN DAALEGAY
+
+const listSchema={
+  name:String,
+  items:[itemsSchema]
+};
+
+const List = mongoose.model("List",listSchema);
+
+/// TO ADD NEW ITEMS IN THE CIUSTOM LIST 
+app.get("/:customListName",function(req,res)
+{
+  console.log(req.params.customListName);
+   const customListName=(req.params.customListName);
+  
+   List.findOne({name:customListName},function(err,foundList)
+   {
+     if(!err)
+     {
+       if(!foundList)
+       {
+        const list = new List({
+          name:customListName,
+          items:defaultItems
+        });
+     list.save();
+       }
+       else
+       {
+         res.render("list" , {listTitle:foundList.name, newListItems:foundList.items});
+       }
+
+     }
+   })
+  });
+
+
 app.get("/work", function(req,res){
   res.render("list", {listTitle: "Work List", newListItems: workItems});
-});
+}); 
 
 app.get("/about", function(req, res){
   res.render("about");
