@@ -11,7 +11,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static("public"));
 
 mongoose.set('strictQuery', false);
-mongoose.connect("mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+1.6.2",{
+mongoose.connect("mongodb+srv://demo:msU54IYeWUQ1YSmL@cluster0.3hzhekh.mongodb.net/",{
   dbName: 'todolistDB',
 },()=>{
   console.log("db is connected");
@@ -90,26 +90,39 @@ else
    foundList.save();
    res.redirect("/"+listName);
   })
-}
-
-});
+}});
 
 
 //NEW ROUTE TO DELETER ITME IN THE TODOLIST
 app.post("/delete",function(req,res){
   const id=req.body.checkbox;
 
-  Item.findByIdAndRemove(id,function(err)
+  const listName = req.body.listName;
+
+  if(listName==="Today")
   {
-    if(err)
+    Item.findByIdAndRemove(id,function(err)
     {
-      console.log(err);
-    }else{
-      console.log("Successfully deleted");
+      if(!err)
+      {
+        console.log(err);
+      }
+      else
+      {
+        console.log("Successfully deleted");
+      }
       res.redirect("/");
+    });
+  }
+  else
+  {
+    List.findOneAndUpdate({name: listName},{$pull :{items:{_id: id}}},function(err,foundList){
+    if(!err)
+    {
+      res.redirect("/"+listName);
     }
   })
-  
+}
 });
 
 // SCHEMA FOR NEW  LIST ITME JO KI HAM LIST MAIN DAALEGAY
